@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstudaData Transpetro — Ênfase 8: Ciência de Dados</title>
+    <!-- Tailwind CSS via CDN (Open Source) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fontes Google: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        petro: {
+                            950: '#041217',
+                            900: '#071d24',
+                            800: '#0c2d38',
+                            700: '#134352',
+                            600: '#195b70',
+                            500: '#217691',
+                            400: '#3ba1c2'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Garantir interatividade absoluta e zero bloqueio de clique */
+        button, input, select, label {
+            pointer-events: auto !important;
+            cursor: pointer;
+        }
+        input[type="text"], input[type="password"] {
+            cursor: text;
+        }
+        .option-btn {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            user-select: text;
+            transition: all 0.16s ease-in-out;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(4px);
+        }
+        .option-btn:disabled {
+            cursor: default !important;
+        }
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #071d24;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #195b70;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-petro-950 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Container de Notificações Toast (Sem alert/confirm) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Cabeçalho Principal -->
+    <header class="sticky top-0 z-40 bg-white/95 dark:bg-petro-900/95 backdrop-blur-md border-b border-slate-200 dark:border-petro-700/70 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <!-- Logo & Título -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-petro-600 flex items-center justify-center text-white shadow-md shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+                                    EstudaData <span class="text-emerald-600 dark:text-emerald-400">Transpetro</span>
+                                </h1>
+                                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                    Ênfase 8: Ciência de Dados
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Plataforma Open Source • Questões Comentadas + Gerador & Tutor IA</p>
+                        </div>
+                    </div>
+
+                    <!-- Botão Tema Claro/Escuro (Mobile) -->
+                    <button type="button" onclick="toggleTheme()" class="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-petro-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-petro-700" title="Alternar Tema">
+                        <span id="themeIconMobile">☀️</span>
+                    </button>
+                </div>
+
+                <!-- Navegação das 4 Abas Principais -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
+                    <nav class="flex items-center gap-1.5 bg-slate-100 dark:bg-petro-950 p-1.5 rounded-xl border border-slate-200 dark:border-petro-800">
+                        <button type="button" onclick="switchTab('resolver')" id="tabBtn-resolver" class="tab-nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-bold whitespace-nowrap transition bg-emerald-600 text-white shadow">
+                            1. Resolver Questões & Tutor IA
+                        </button>
+                        <button type="button" onclick="switchTab('gerador')" id="tabBtn-gerador" class="tab-nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-petro-800">
+                            2. Gerador Inédito (IA)
+                        </button>
+                        <button type="button" onclick="switchTab('edital')" id="tabBtn-edital" class="tab-nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-petro-800">
+                            3. Edital Verticalizado (12 Blocos)
+                        </button>
+                        <button type="button" onclick="switchTab('banco')" id="tabBtn-banco" class="tab-nav-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-petro-800">
+                            4. Banco Open Source & Exportação
+                        </button>
+                    </nav>
+
+                    <button type="button" onclick="toggleTheme()" class="hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 dark:bg-petro-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-petro-700 hover:border-emerald-500 transition" title="Alternar Tema Claro/Escuro">
+                        <span id="themeIconDesktop">☀️</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Métricas Rápidas -->
+        <div class="bg-slate-100/80 dark:bg-petro-950/90 border-t border-slate-200 dark:border-petro-800/80 px-4 py-2 text-xs">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-4 sm:gap-6">
+                    <span>📚 Acervo Total: <strong id="statTotalQ" class="font-mono text-slate-900 dark:text-white">0</strong></span>
+                    <span>✨ Inéditas (IA): <strong id="statAiQ" class="font-mono text-amber-600 dark:text-amber-400">0</strong></span>
+                    <span>🎯 Aproveitamento: <strong id="statAccuracy" class="font-mono text-emerald-600 dark:text-emerald-400">0%</strong></span>
+                    <span>📋 Edital Concluído: <strong id="statEditalPct" class="font-mono text-sky-600 dark:text-sky-400">0%</strong></span>
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 hidden md:block">
+                    Atalhos: <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-petro-800 border border-slate-300 dark:border-petro-700 font-mono">A-E</kbd> Selecionar • <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-petro-800 border border-slate-300 dark:border-petro-700 font-mono">Enter</kbd> Confirmar • <kbd class="px-1.5 py-0.5 rounded bg-white dark:bg-petro-800 border border-slate-300 dark:border-petro-700 font-mono">← →</kbd> Navegar
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- =================================================================== -->
+        <!-- ABA 1: RESOLVER QUESTÕES & TUTOR IA                                 -->
+        <!-- =================================================================== -->
+        <section id="view-resolver" class="tab-view space-y-5">
+            <!-- Barra de Filtros -->
+            <div class="bg-white dark:bg-petro-900/80 border border-slate-200 dark:border-petro-700/70 rounded-2xl p-4 sm:p-5 shadow-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                        <label for="filterBloco" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Bloco do Edital (I a XII)</label>
+                        <select id="filterBloco" onchange="applyFilters()" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Todos os 12 Blocos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterBanca" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Banca Examinadora</label>
+                        <select id="filterBanca" onchange="applyFilters()" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Todas as Bancas</option>
+                            <option value="Cesgranrio">Cesgranrio</option>
+                            <option value="Cebraspe">Cebraspe</option>
+                            <option value="FGV">FGV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterOrigem" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Origem da Questão</label>
+                        <select id="filterOrigem" onchange="applyFilters()" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Todas (Provas + Inéditas IA)</option>
+                            <option value="PREVIOUS">Provas Anteriores</option>
+                            <option value="AI">Inéditas Geradas por IA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterStatus" class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Status</label>
+                        <select id="filterStatus" onchange="applyFilters()" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">Todas</option>
+                            <option value="UNANSWERED">Não Resolvidas</option>
+                            <option value="WRONG">Erradas (Revisar)</option>
+                            <option value="CORRECT">Acertadas</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de Navegação da Questão -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-petro-900/80 border border-slate-200 dark:border-petro-700/70 rounded-xl px-4 py-3">
+                <div class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+                    Questão <strong id="qCurrentNum" class="font-mono text-emerald-600 dark:text-emerald-400">0</strong> de <strong id="qTotalFiltered" class="font-mono text-slate-900 dark:text-white">0</strong>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="btnPrevQ" onclick="navigateQuestion(-1)" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-petro-800 hover:bg-slate-200 dark:hover:bg-petro-700 disabled:opacity-40 text-xs font-bold text-slate-800 dark:text-white border border-slate-300 dark:border-petro-600 transition">
+                        ← Anterior
+                    </button>
+                    <button type="button" onclick="pickRandomQuestion()" class="px-3.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-xs font-bold text-sky-700 dark:text-sky-300 border border-sky-500/30 transition">
+                        🎲 Aleatória
+                    </button>
+                    <button type="button" id="btnNextQ" onclick="navigateQuestion(1)" class="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-petro-800 hover:bg-slate-200 dark:hover:bg-petro-700 disabled:opacity-40 text-xs font-bold text-slate-800 dark:text-white border border-slate-300 dark:border-petro-600 transition">
+                        Próxima →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card Principal da Questão -->
+            <div id="questionCardContainer" class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 sm:p-8 shadow-lg">
+                <!-- Renderizado via JS -->
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ABA 2: GERADOR INÉDITO (IA)                                         -->
+        <!-- =================================================================== -->
+        <section id="view-gerador" class="tab-view hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Formulário de Geração -->
+                <div class="lg:col-span-5 bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-lg space-y-4 h-fit">
+                    <div class="border-b border-slate-200 dark:border-petro-700/70 pb-4">
+                        <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 mb-2">
+                            ✨ Inteligência Artificial Generativa
+                        </span>
+                        <h2 class="text-lg font-extrabold text-slate-900 dark:text-white">Gerador de Questões Inéditas</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Crie questões inéditas para tópicos com poucas provas anteriores. Elas são salvas automaticamente no banco do site.</p>
+                    </div>
+
+                    <div>
+                        <label for="genBloco" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">1. Bloco do Edital (I a XII)</label>
+                        <select id="genBloco" onchange="updateGenSubtopicos()" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"></select>
+                    </div>
+
+                    <div>
+                        <label for="genSubtopico" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">2. Subtópico Específico</label>
+                        <select id="genSubtopico" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"></select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label for="genBanca" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">3. Banca Alvo</label>
+                            <select id="genBanca" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                                <option value="Cesgranrio">Cesgranrio</option>
+                                <option value="Cebraspe">Cebraspe</option>
+                                <option value="FGV">FGV</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="genNivel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">4. Nível</label>
+                            <select id="genNivel" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                                <option value="Médio">Médio</option>
+                                <option value="Difícil">Difícil</option>
+                                <option value="Fácil">Fácil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="genQtd" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">5. Quantidade</label>
+                            <select id="genQtd" class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                                <option value="1">1 Questão</option>
+                                <option value="2">2 Questões</option>
+                                <option value="3">3 Questões</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="genExtraFocus" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Direcionamento Extra (Opcional)</label>
+                        <input type="text" id="genExtraFocus" placeholder="Ex: Cobrar armadilha de Data Leakage ou cálculo de autovalores..." class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <button type="button" id="btnGenerateQuestions" onclick="handleGenerateQuestions()" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                        <span>✨ Gerar & Salvar no Banco de Dados</span>
+                    </button>
+                </div>
+
+                <!-- Resultado da Geração -->
+                <div class="lg:col-span-7 space-y-5">
+                    <div id="genResultPanel" class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-lg min-h-[280px] flex flex-col justify-center">
+                        <div class="text-center max-w-md mx-auto space-y-3 py-6">
+                            <div class="text-4xl">🧠</div>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Expanda seu Banco de Questões</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                Selecione o bloco e o subtópico ao lado. A IA criará questões inéditas com 5 alternativas (A–E), gabarito comentado alternativa por alternativa e a Pílula Teórica do conceito, salvando tudo no seu navegador.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Histórico de Inéditas Geradas -->
+                    <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Questões Inéditas Salvas no Banco</h3>
+                            <span id="badgeAiCount" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300">0</span>
+                        </div>
+                        <div id="aiHistoryList" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ABA 3: EDITAL VERTICALIZADO (12 BLOCOS)                             -->
+        <!-- =================================================================== -->
+        <section id="view-edital" class="tab-view hidden space-y-5">
+            <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 sm:p-6 shadow-lg">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-petro-700/70">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Edital Verticalizado — Ênfase 8: Ciência de Dados</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Marque os subtópicos concluídos para acompanhar seu avanço e clique em "Praticar Bloco" para filtrar as questões.</p>
+                    </div>
+                    <div class="w-full md:w-72 bg-slate-100 dark:bg-petro-950 p-3.5 rounded-xl border border-slate-200 dark:border-petro-800">
+                        <div class="flex justify-between text-xs font-bold mb-1.5">
+                            <span class="text-slate-600 dark:text-slate-300">Progresso Geral</span>
+                            <span id="editalTotalPctLabel" class="font-mono text-emerald-600 dark:text-emerald-400">0%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 dark:bg-petro-800 rounded-full overflow-hidden">
+                            <div id="editalTotalBar" class="h-full bg-gradient-to-r from-emerald-500 to-sky-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="editalTotalCountLabel" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 text-right">0 de 0 subtópicos</p>
+                    </div>
+                </div>
+
+                <div id="editalAccordionContainer" class="mt-5 space-y-3">
+                    <!-- Renderizado via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ABA 4: BANCO OPEN SOURCE & EXPORTAÇÃO                               -->
+        <!-- =================================================================== -->
+        <section id="view-banco" class="tab-view hidden space-y-6">
+            <!-- KPIs de Desempenho -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Total no Banco</p>
+                    <p id="kpiTotalQ" class="text-3xl font-extrabold font-mono text-slate-900 dark:text-white mt-1">0</p>
+                    <p id="kpiOriginBreakdown" class="text-xs text-slate-500 dark:text-slate-400 mt-1">0 provas • 0 inéditas IA</p>
+                </div>
+                <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Questões Respondidas</p>
+                    <p id="kpiAnswered" class="text-3xl font-extrabold font-mono text-sky-600 dark:text-sky-400 mt-1">0</p>
+                    <p id="kpiHitsMisses" class="text-xs text-slate-500 dark:text-slate-400 mt-1">0 acertos • 0 erros</p>
+                </div>
+                <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Taxa de Acerto Geral</p>
+                    <p id="kpiAccuracy" class="text-3xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400 mt-1">0%</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Meta competitiva: ≥ 80%</p>
+                </div>
+                <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 shadow-sm">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Avanço no Edital</p>
+                    <p id="kpiEdital" class="text-3xl font-extrabold font-mono text-purple-600 dark:text-purple-400 mt-1">0%</p>
+                    <p id="kpiTopics" class="text-xs text-slate-500 dark:text-slate-400 mt-1">0 tópicos concluídos</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Desempenho por Bloco -->
+                <div class="lg:col-span-7 bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white mb-4">Desempenho por Bloco do Edital (I a XII)</h3>
+                    <div id="blockStatsContainer" class="space-y-3.5"></div>
+                </div>
+
+                <!-- Configuração API Gemini & Exportação Open Source -->
+                <div class="lg:col-span-5 space-y-5">
+                    <!-- API Key Gemini -->
+                    <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-sm space-y-3">
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">🔑 Configuração da API Gemini (Opcional)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            O ambiente já possui integração ativa. Se você baixar este HTML para rodar localmente no seu PC, insira sua chave gratuita do <strong>Google AI Studio</strong> (<code>AIza...</code>) abaixo:
+                        </p>
+                        <input type="password" id="geminiApiKeyInput" placeholder="Cole sua Gemini API Key aqui (salva apenas no navegador)..." class="w-full rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                        <div class="flex gap-2">
+                            <button type="button" onclick="saveApiKey()" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+                                Salvar Chave Localmente
+                            </button>
+                            <button type="button" onclick="clearApiKey()" class="py-2.5 px-3 rounded-xl bg-slate-200 dark:bg-petro-800 hover:bg-slate-300 dark:hover:bg-petro-700 text-slate-700 dark:text-slate-300 font-semibold text-xs transition">
+                                Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Exportação / Importação JSON e CSV -->
+                    <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-sm space-y-3">
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">📦 Dados Abertos (JSON & CSV)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Exporte todo o banco de questões (provas anteriores + inéditas geradas por IA) e seu progresso em formatos abertos para análise em Python/Pandas ou backup.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                            <button type="button" onclick="exportJSON()" class="py-2.5 px-3 rounded-xl bg-petro-700 hover:bg-petro-600 text-white font-bold text-xs transition">
+                                ⬇ Exportar .JSON
+                            </button>
+                            <button type="button" onclick="exportCSV()" class="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition">
+                                ⬇ Exportar .CSV
+                            </button>
+                        </div>
+                        <label class="block w-full text-center py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-petro-950 hover:bg-slate-200 dark:hover:bg-petro-800 border border-dashed border-slate-400 dark:border-petro-600 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer transition">
+                            ⬆ Importar Backup (.JSON)
+                            <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
+                        </label>
+                        <div class="pt-2 border-t border-slate-200 dark:border-petro-800 flex justify-between items-center">
+                            <span class="text-[11px] text-slate-500">Resetar estatísticas de acertos/erros:</span>
+                            <button type="button" onclick="resetProgressOnly()" class="px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-600 dark:text-rose-300 text-xs font-bold transition">
+                                Zerar Respostas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Gerenciamento do Acervo -->
+            <div class="bg-white dark:bg-petro-900/90 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Gerenciar Questões do Acervo</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Visualize todas as questões cadastradas, abra diretamente na aba de resolução ou exclua questões inéditas.</p>
+                    </div>
+                    <input type="text" id="manageSearchInput" oninput="renderManageTable()" placeholder="Buscar por palavra-chave, ID ou banca..." class="w-full sm:w-72 rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-300 dark:border-petro-700 px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-petro-700 text-slate-500 dark:text-slate-400">
+                                <th class="py-2.5 px-3">ID</th>
+                                <th class="py-2.5 px-3">Bloco</th>
+                                <th class="py-2.5 px-3">Banca / Origem</th>
+                                <th class="py-2.5 px-3">Enunciado (Resumo)</th>
+                                <th class="py-2.5 px-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manageTableBody" class="divide-y divide-slate-100 dark:divide-petro-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="border-t border-slate-200 dark:border-petro-800 bg-white dark:bg-petro-900/60 py-4 px-4 mt-8 text-xs text-slate-500 dark:text-slate-400">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span><strong>EstudaData Transpetro</strong> — Edital Verticalizado (Ênfase 8: Ciência de Dados)</span>
+            <span class="font-mono text-[11px]">100% Open Source • HTML5 + Tailwind CSS + Vanilla JS + LocalStorage</span>
+        </div>
+    </footer>
+
+    <script>
+        // =========================================================================
+        // 1. EDITAL VERTICALIZADO COMPLETO (12 BLOCOS - TRANSPETRO ÊNFASE 8)
+        // =========================================================================
+        const EDITAL_BLOCOS = [
+            {
+                id: "I",
+                titulo: "I. Matemática",
+                subtopicos: [
+                    "1. Cálculo Básico: funções; limites; derivadas; derivadas parciais; máximos e mínimos; integrais.",
+                    "2. Álgebra Linear: vetores e matrizes; operações; tipos de matrizes; transformações lineares; espaços vetoriais de Rⁿ; sistemas lineares; normas (L1, L2, infinita, Minkowski, Chebyshev); autovalores e autovetores; decomposição Cholesky e SVD."
+                ]
+            },
+            {
+                id: "II",
+                titulo: "II. Probabilidade e Estatística",
+                subtopicos: [
+                    "1. Fundamentos de probabilidade: axiomas; probabilidade condicional.",
+                    "2. Variáveis aleatórias e distribuições: Uniforme, Binomial, Normal, Poisson, Bernoulli e Exponencial.",
+                    "3. Estatísticas Descritivas: média, mediana, moda; variância, desvio padrão, amplitude; percentis e quartis.",
+                    "4. Teoremas fundamentais: independência; Teorema de Bayes; probabilidade total; Lei dos Grandes Números; Teorema Central do Limite.",
+                    "5. Distribuições amostrais: média, proporção, qui-quadrado, t de Student e F.",
+                    "6. Inferência estatística: estimação pontual e intervalar; testes de hipóteses (erros tipo I e II, poder); testes z, t, qui-quadrado; teste A/B.",
+                    "7. Correlação: correlação e causalidade; Pearson, Spearman e correlação parcial."
+                ]
+            },
+            {
+                id: "III",
+                titulo: "III. Dados e Bases de Dados",
+                subtopicos: [
+                    "1. Conceitos fundamentais (DIKW): dados qualitativos/quantitativos; Tidy Data; formatos (txt, csv, xlsx, xml, json).",
+                    "2. Bases de Dados e Metadados: tipos técnicos, de negócio, operacionais; dicionário, catálogo e linhagem de dados.",
+                    "3. Armazenamento de dados: sistemas distribuídos; Object Storage (S3, Blob); Data Warehouse, Data Mart, Data Lake e Data Lakehouse (camadas Bronze, Silver, Gold).",
+                    "4. SGBDs: SQL e NoSQL; transações (ACID vs BASE); índices; controle de acesso; integridade.",
+                    "5. Modelagem de dados: MER/DER; modelo relacional (chaves); NoSQL (chave-valor, colunar, documentos, grafos).",
+                    "6. Big Data: Spark (Lazy Evaluation, DAG), Hadoop (HDFS NameNode/DataNode, MapReduce) e Parquet."
+                ]
+            },
+            {
+                id: "IV",
+                titulo: "IV. Gestão de Projetos de Ciência de Dados",
+                subtopicos: [
+                    "1. Ciclo de vida de projetos de dados: coleta, processamento, análise, publicação, arquivamento vs backup; reprodutibilidade (Git, DVC, Docker).",
+                    "2. Metodologias de gestão: CRISP-DM, Microsoft TDSP, OSEMN e métodos ágeis (Scrum e Kanban)."
+                ]
+            },
+            {
+                id: "V",
+                titulo: "V. Qualidade e Preparação de Dados",
+                subtopicos: [
+                    "1. Metadados, qualidade e linhagem de dados (Data Lineage).",
+                    "2. Coleta de dados: HTTP/REST, APIs, Web Scraping (Requests, BeautifulSoup, Selenium, Scrapy, XPath vs CSS).",
+                    "3. Problemas comuns de qualidade: valores ausentes, duplicatas, outliers, desbalanceamento e erros de imputação.",
+                    "4. Limpeza e preparação: tratamento de dados, detecção de vieses e data profiling.",
+                    "5. Pré-processamento: normalização (Min-Max), padronização (Z-Score), discretização e encoding (One-Hot, Label, Target).",
+                    "6. Feature engineering: criação, seleção e transformações matemáticas de atributos.",
+                    "7. Divisão de dados: amostragem, treino/validação/teste, validação cruzada e prevenção de Data Leakage."
+                ]
+            },
+            {
+                id: "VI",
+                titulo: "VI. Modelagem",
+                subtopicos: [
+                    "1. Pipeline de treinamento, serialização (Pickle/Joblib) e orquestração (DAGs).",
+                    "2. Otimização de hiperparâmetros: Grid Search, Random Search, otimização bayesiana, AutoML.",
+                    "3. Métricas de avaliação: regressão (MSE, RMSE, MAE, R², R² ajustado) e classificação (Accuracy, Precision, Recall, F1, ROC-AUC, matriz de confusão); viés-variância; overfitting/underfitting.",
+                    "4. Regularização: Lasso (L1), Ridge (L2), Elastic Net, Dropout, Early Stopping e Batch Normalization.",
+                    "5. Dados desbalanceados: oversampling (SMOTE), undersampling, dados sintéticos e ajuste de pesos.",
+                    "6. Validação de modelos: K-Fold, Leave-One-Out e Bootstrap.",
+                    "7. Modelagem centrada em dados (Data-Centric AI)."
+                ]
+            },
+            {
+                id: "VII",
+                titulo: "VII. Classes de Modelos",
+                subtopicos: [
+                    "1. Redução de dimensionalidade: PCA, LDA, ICA, t-SNE e Autoencoders.",
+                    "2. Clusterização: K-Means, agrupamento hierárquico (aglomerativo/divisivo), GMM e DBSCAN.",
+                    "3. Classificação: Regressão Logística, KNN, SVM, Árvores de Decisão (CART), Naive-Bayes e Random Forest.",
+                    "4. Regressão: linear simples e múltipla, MQO, diagnóstico de resíduos, ANOVA, modelos não lineares.",
+                    "5. Ensembling: Bagging, Boosting (AdaBoost, GBM, XGBoost, LightGBM, CatBoost) e Stacking.",
+                    "6. Sistemas de recomendação: filtragem colaborativa, baseada em conteúdo, híbridos e Cold Start.",
+                    "7. Séries temporais: tendência, sazonalidade, ACF/PACF, estacionariedade, cointegração, AR, ARMA, ARIMA, ARIMAX, GARCH.",
+                    "8. Tópicos em regressão: dados em painel, GLM, regressão espacial, quantílica, Poisson, VAR e ECM.",
+                    "9. Modelos causais: experimentos, RDD, variáveis instrumentais, Diferenças em Diferenças (DiD) e pareamento.",
+                    "10. Redes Neurais e Deep Learning: MLP, ativação, backpropagation, otimizadores, embeddings, CNN, RNN, LSTM, GRU, GAN e multimodais."
+                ]
+            },
+            {
+                id: "VIII",
+                titulo: "VIII. Processamento de Linguagem Natural (NLP)",
+                subtopicos: [
+                    "1. Pré-processamento de texto: limpeza, normalização, stop words, stemming e lematização.",
+                    "2. Representação de texto: N-grams, CBOW, Skip-gram, TF-IDF, Word2Vec, GloVe, Doc2Vec e BERT.",
+                    "3. Modelagem de tópicos: Latent Dirichlet Allocation (LDA) e NMF.",
+                    "4. Modelos de linguagem: tradicionais, RNNs, CNNs e Transformers (Encoder BERT vs Decoder GPT).",
+                    "5. Tarefas de NLP: classificação, sentimento, NER, similaridade de cosseno, sumarização, POS-tagging e tradução."
+                ]
+            },
+            {
+                id: "IX",
+                titulo: "IX. Programação e Ferramentas",
+                subtopicos: [
+                    "1. Python: sintaxe, estruturas de dados, escopo (LEGB), funções, paralelização e serialização (Pickle/Joblib).",
+                    "2. Bibliotecas Python: Pandas, NumPy, Matplotlib, Seaborn, Plotly, TensorFlow, Keras, PyTorch, Scikit-learn, XGBoost, NLTK, spaCy, HuggingFace, PySpark, BeautifulSoup, Streamlit.",
+                    "3. Linguagem SQL: DQL, DML, DDL, agregações, filtros (IS NULL), JOINs, subconsultas e Window Functions.",
+                    "4. Microsoft Power BI: Power Query (Linguagem M), Import vs DirectQuery, modelagem estrela, DAX (medidas vs colunas), RLS, Gateways e licenciamento."
+                ]
+            },
+            {
+                id: "X",
+                titulo: "X. Visualização, Storytelling e Comunicação Corporativa",
+                subtopicos: [
+                    "1. Tipos de gráficos: barras, linhas, pizza, dispersão, histograma, boxplot, mapa de calor, Sankey, treemap.",
+                    "2. Design e acessibilidade: codificação visual, interatividade e diretrizes WCAG (POUR).",
+                    "3. Dashboards: layout, hierarquia visual, drill-downs e visualização inline em notebooks.",
+                    "4. Storytelling com dados: narrativas visuais e contextualização executiva."
+                ]
+            },
+            {
+                id: "XI",
+                titulo: "XI. Governança e Segurança de Dados",
+                subtopicos: [
+                    "1. Governança de Dados (DMBOK): papéis (Data Owner, Steward, Custodian), MDM (Golden Record), qualidade, integridade e privacidade (LGPD, RIPD, DPO/Encarregado, DLP)."
+                ]
+            },
+            {
+                id: "XII",
+                titulo: "XII. Governança, Segurança e Aplicação Responsável de IA",
+                subtopicos: [
+                    "1. Governança e gestão de riscos em IA.",
+                    "2. Riscos e vulnerabilidades: viés algorítmico, exposição de dados, data poisoning, ataques adversariais, roubo/inversão de modelos e alucinações.",
+                    "3. IA Responsável: ética, transparência, explicabilidade (XAI - SHAP e LIME), justiça/equidade, accountability e compliance."
+                ]
+            }
+        ];
+
+        // =========================================================================
+        // 2. ACERVO INICIAL RICO (16 QUESTÕES COBRINDO TODOS OS 12 BLOCOS DO EDITAL)
+        // =========================================================================
+        const INITIAL_QUESTIONS = [
+            {
+                id: "Q-01",
+                blocoId: "I",
+                subtopico: "2. Álgebra Linear: normas (L1, L2, infinita), autovalores e autovetores; decomposição Cholesky e SVD.",
+                banca: "Cesgranrio",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Difícil",
+                enunciado: "Na decomposição em valores singulares (Singular Value Decomposition — SVD) de uma matriz real retangular A de dimensões m × n, expressa por A = U Σ Vᵀ, considere sua aplicação em redução de dimensionalidade e sistemas de recomendação. Assinale a alternativa CORRETA sobre suas propriedades matemáticas.",
+                alternativas: {
+                    A: "A decomposição SVD exige que a matriz A seja quadrada, simétrica e estritamente positiva definida.",
+                    B: "As colunas de U correspondem aos autovetores ortonormais de AᵀA, enquanto as colunas de V correspondem aos autovetores ortonormais de AAᵀ.",
+                    C: "A matriz Σ possui dimensões m × n com valores singulares não negativos na diagonal principal, correspondentes às raízes quadradas dos autovalores não nulos de AᵀA.",
+                    D: "A decomposição de Cholesky substitui a SVD em qualquer matriz retangular esparsa, dispensando a condição de simetria.",
+                    E: "A norma L1 (Manhattan) do vetor v = [3, -4] é igual a 5, enquanto sua norma L2 (Euclidiana) é igual a 7."
+                },
+                gabarito: "C",
+                explicacao: "A alternativa C está correta: na SVD (A = U Σ Vᵀ), Σ é uma matriz diagonal retangular m × n cujos elementos σᵢ ≥ 0 são os valores singulares de A (raízes quadradas dos autovalores não nulos de AᵀA e AAᵀ). Análise das demais:\n• (A) Incorreta: a SVD existe para QUALQUER matriz retangular m × n; simetria e positividade definida são exigências da decomposição de Cholesky.\n• (B) Incorreta: os vetores estão invertidos (U contém os autovetores de AAᵀ e V os de AᵀA).\n• (D) Incorreta: Cholesky (A = LLᵀ) só se aplica a matrizes quadradas, simétricas e positivas definidas.\n• (E) Incorreta: os valores estão trocados; ||v||₁ = |3| + |-4| = 7 e ||v||₂ = √(3² + (-4)²) = 5.",
+                conceitoChave: "SVD vs. Cholesky & Normas Vetoriais: A SVD fatora qualquer matriz m×n em UΣVᵀ e fundamenta o PCA e a Análise Semântica Latente (LSA). Já Cholesky exige matriz quadrada, simétrica e positiva definida. Quanto às normas: L1 soma módulos (|xᵢ|), L2 calcula a raiz da soma dos quadrados (√∑xᵢ²), e L∞ pega o maior valor absoluto."
+            },
+            {
+                id: "Q-02",
+                blocoId: "II",
+                subtopico: "4. Teoremas fundamentais: independência; Teorema de Bayes; probabilidade total.",
+                banca: "Cesgranrio",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Um sistema de monitoramento acústico em dutos da Transpetro possui sensibilidade (probabilidade de alarme dado que há vazamento) de 90% e especificidade (probabilidade de não alarmar dado que não há vazamento) de 95%. Sabendo que a prevalência real de vazamentos é de 2%, se o sistema disparar um alarme, qual é a probabilidade aproximada de realmente estar ocorrendo um vazamento?",
+                alternativas: {
+                    A: "90,0%",
+                    B: "64,3%",
+                    C: "26,9%",
+                    D: "18,0%",
+                    E: "4,9%"
+                },
+                gabarito: "C",
+                explicacao: "Pelo Teorema de Bayes:\n• P(V) = 0,02 e P(¬V) = 0,98\n• P(+|V) = 0,90 (Sensibilidade)\n• P(+|¬V) = 1 - 0,95 = 0,05 (Taxa de Falso Positivo)\n• Probabilidade total do alarme: P(+) = (0,90 × 0,02) + (0,05 × 0,98) = 0,018 + 0,049 = 0,067\n• P(V|+) = 0,018 / 0,067 ≈ 0,2687 = 26,9%.\nAs demais alternativas ignoram a baixa prevalência (falácia da taxa base) ou erram o denominador da probabilidade total.",
+                conceitoChave: "Teorema de Bayes e Taxa Base: P(A|B) = [P(B|A)·P(A)] / P(B). Em eventos raros (baixa prevalência P(A), como falhas em dutos ou fraudes), mesmo sensores com 95% de especificidade geram mais falsos positivos (4,9% do total) do que verdadeiros positivos (1,8% do total)."
+            },
+            {
+                id: "Q-03",
+                blocoId: "II",
+                subtopico: "7. Correlação: correlação e causalidade; Pearson, Spearman e correlação parcial.",
+                banca: "Cebraspe",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Ao analisar duas variáveis aleatórias contínuas X e Y em um estudo operacional, um cientista de dados obteve coeficiente de correlação linear de Pearson r = 0. Diante desse resultado, assinale a afirmativa tecnicamente CORRETA.",
+                alternativas: {
+                    A: "As variáveis X e Y são obrigatoriamente independentes do ponto de vista estatístico.",
+                    B: "Não existe qualquer tipo de relação funcional, linear ou não linear, entre X e Y.",
+                    C: "Não há associação linear entre X e Y, mas ainda pode existir uma relação não linear perfeita (por exemplo, Y = X² em um intervalo simétrico em torno de zero).",
+                    D: "O coeficiente de correlação de Spearman entre X e Y também será necessariamente igual a zero.",
+                    E: "A covariância entre X e Y é estritamente positiva, porém próxima da unidade."
+                },
+                gabarito: "C",
+                explicacao: "A alternativa C está correta: o coeficiente de Pearson mede exclusivamente associação LINEAR. Se Y = X² e X ∈ [-2, 2], r = 0, mas há dependência funcional determinística! Análise das demais:\n• (A) e (B) Incorretas: Independência implica r = 0, mas r = 0 NÃO implica independência (exceto no caso específico da distribuição Normal Bivariada).\n• (D) Incorreta: Spearman mede relações monotônicas (baseadas em postos/ranks) e pode diferir de Pearson.\n• (E) Incorreta: r = Cov(X,Y)/(σₓσᵧ); se r = 0, então Cov(X,Y) = 0.",
+                conceitoChave: "Pegadinha Clássica de Estatística (r = 0 vs. Independência): Independência estatística ⇒ Cov(X,Y) = 0 ⇒ Pearson r = 0. Porém, a recíproca é FALSA: r = 0 indica apenas ausência de relação LINEAR, podendo haver forte relação não linear (quadrática, senoidal, circular)."
+            },
+            {
+                id: "Q-04",
+                blocoId: "III",
+                subtopico: "1. Conceitos fundamentais (DIKW): dados qualitativos/quantitativos; Tidy Data; formatos (txt, csv, xlsx, xml, json).",
+                banca: "FGV",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Fácil",
+                enunciado: "De acordo com os princípios de Tidy Data (Dados Arrumados) sistematizados por Hadley Wickham, para que um conjunto de dados tabulares facilite o pipeline analítico e a modelagem estatística, deve-se garantir que:",
+                alternativas: {
+                    A: "Cada observação forme uma coluna, cada variável forme uma linha e cada tabela reúna múltiplas unidades observacionais distintas.",
+                    B: "Cada variável forme uma coluna, cada observação forme uma linha e cada tipo de unidade observacional forme uma tabela.",
+                    C: "Valores de diferentes variáveis sejam concatenados na mesma célula para economizar espaço em disco e memória.",
+                    D: "Os cabeçalhos das colunas representem valores de dados (como anos '2022', '2023', '2024') em vez de nomes de variáveis.",
+                    E: "Os dados sejam armazenados exclusivamente em formato XML hierárquico antes de qualquer análise tabular."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B reproduz fielmente os 3 pilares do Tidy Data de Hadley Wickham:\n1. Cada variável tem sua própria coluna;\n2. Cada observação tem sua própria linha;\n3. Cada tipo de unidade observacional tem sua própria tabela (e cada valor tem sua própria célula).\nErro das demais: (A) Inverte linha e coluna. (C) Viola a atomicidade da célula. (D) Colocar valores (ex: anos) como nomes de colunas é o erro clássico de 'wide/messy data', corrigido com operações de melt/unpivot. (E) XML não é requisito do Tidy Data.",
+                conceitoChave: "Princípios de Tidy Data (Hadley Wickham): Variável = Coluna | Observação = Linha | Valor = Célula | Tipo de Unidade = Tabela. Quando colunas contêm valores (ex: colunas 'Jan', 'Fev', 'Mar'), o dado não está tidy e exige transformação melt/pivot_longer."
+            },
+            {
+                id: "Q-05",
+                blocoId: "III",
+                subtopico: "3. Armazenamento de dados: Object Storage (S3, Blob); Data Warehouse, Data Mart, Data Lake e Data Lakehouse.",
+                banca: "Cesgranrio",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Uma arquitetura moderna de dados na nuvem armazena terabytes de dados brutos em Object Storage (como Amazon S3 ou Azure Blob Storage) utilizando arquivos colunares Apache Parquet, mas adiciona uma camada aberta de metadados transacionais (como Delta Lake ou Apache Iceberg) que garante propriedades ACID, controle de versão (Time Travel) e Schema Enforcement diretamente sobre o lago. Essa arquitetura é denominada:",
+                alternativas: {
+                    A: "Data Mart Dependente.",
+                    B: "Data Lakehouse.",
+                    C: "Banco Relacional OLTP Monolítico.",
+                    D: "Sistema de Arquivos Local NTFS.",
+                    E: "Data Warehouse Multidimensional em Cubos OLAP estáticos."
+                },
+                gabarito: "B",
+                explicacao: "O Data Lakehouse combina a escalabilidade e o baixo custo do armazenamento de objetos de um Data Lake (Schema-on-Read para dados estruturados e não estruturados) com os recursos de confiabilidade, transações ACID, governança de esquema e desempenho de consultas analíticas de um Data Warehouse, evitando a duplicação de dados em dois sistemas separados.",
+                conceitoChave: "Data Lakehouse & Camadas Medallion (Bronze, Silver, Gold): O Lakehouse traz transações ACID e Time Travel para cima do Object Storage (S3/Blob) usando formatos abertos como Parquet + Delta Lake/Iceberg. Lembre-se também: no Object Storage a estrutura é PLANA (flat), não havendo pastas físicas reais."
+            },
+            {
+                id: "Q-06",
+                blocoId: "IV",
+                subtopico: "2. Metodologias de gestão: CRISP-DM, Microsoft TDSP, OSEMN e métodos ágeis (Scrum e Kanban).",
+                banca: "Cesgranrio",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Na gestão ágil de projetos de Ciência de Dados da Transpetro, uma equipe combina o modelo CRISP-DM com práticas de Scrum e Kanban. Sobre os papéis, eventos e fluxo dessas metodologias, assinale a opção CORRETA.",
+                alternativas: {
+                    A: "No CRISP-DM, a fase de Preparação de Dados ocorre apenas uma única vez e nunca pode ser revisitada após o início da fase de Modelagem.",
+                    B: "No Scrum, o Product Owner é responsável por definir a arquitetura técnica dos pipelines de ML e remover impedimentos operacionais da equipe.",
+                    C: "No Kanban, limitar o trabalho em progresso (WIP — Work in Progress) ajuda a evitar gargalos e melhora o fluxo contínuo de entrega de experimentos e análises.",
+                    D: "A Daily Scrum é uma reunião semanal de duas horas conduzida pelo gerente de projeto para cobrar produtividade individual.",
+                    E: "No método TDSP da Microsoft, o ciclo de vida descarta o entendimento do negócio para priorizar exclusivamente o tuning de hiperparâmetros."
+                },
+                gabarito: "C",
+                explicacao: "A alternativa C está correta: o Kanban fundamenta-se na visualização do fluxo de trabalho e na limitação do WIP (Work in Progress), evitando que cientistas de dados abram dezenas de tarefas exploratórias sem concluir entregas. Erro das demais:\n• (A) O CRISP-DM é cíclico e iterativo, permitindo idas e vindas entre Modelagem e Preparação de Dados.\n• (B) O PO maximiza o valor de negócio e gerencia o Product Backlog; quem remove impedimentos é o Scrum Master, e quem decide a técnica são os Developers.\n• (D) A Daily Scrum é diária, dura até 15 minutos e é para os Developers alinharem o plano das próximas 24h.\n• (E) O Microsoft TDSP inicia explicitamente pelo Business Understanding.",
+                conceitoChave: "CRISP-DM + Scrum/Kanban: CRISP-DM possui 6 fases cíclicas (Business Understanding → Data Understanding → Data Preparation → Modeling → Evaluation → Deployment). No Scrum: PO (o quê/valor), Scrum Master (processo/impedimentos), Developers (como/execução). No Kanban: visualizar fluxo + limitar WIP."
+            },
+            {
+                id: "Q-07",
+                blocoId: "V",
+                subtopico: "7. Divisão de dados: amostragem, treino/validação/teste, validação cruzada e prevenção de Data Leakage.",
+                banca: "FGV",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Um cientista de dados precisa treinar um modelo de classificação com validação cruzada K-Fold (k = 5) em um dataset que contém valores ausentes (missing values) e variáveis numéricas em escalas muito distintas. Para evitar vazamento de dados (Data Leakage) e obter uma estimativa honesta de generalização, o procedimento CORRETO é:",
+                alternativas: {
+                    A: "Calcular a média e o desvio padrão de todo o dataset antes da divisão, imputar e padronizar todos os dados juntos e depois aplicar o K-Fold.",
+                    B: "Encapsular a imputação e a padronização (StandardScaler) dentro de um Pipeline, ajustando (.fit) essas transformações apenas nos k - 1 folds de treino de cada iteração e aplicando (.transform) no fold de validação.",
+                    C: "Aplicar oversampling (SMOTE) em toda a base antes de separar o conjunto de teste final para aumentar o número de amostras de validação.",
+                    D: "Utilizar a variável alvo (target) como preditora durante a imputação dos dados de teste.",
+                    E: "Realizar seleção de features usando correlação com o alvo em 100% dos registros antes de dividir treino e teste."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B está correta: qualquer transformação que aprenda parâmetros dos dados (média, mediana, desvio padrão, componentes PCA, seletores de features, SMOTE) deve ser ajustada (.fit) EXCLUSIVAMENTE nos dados de treinamento de cada fold e apenas aplicada (.transform) na validação/teste. Fazer isso antes da divisão (como descrito em A, C e E) vaza informações estatísticas da validação para o treino (Data Leakage), inflando artificialmente as métricas.",
+                conceitoChave: "Prevenção de Data Leakage (Vazamento de Dados): Regra de ouro: NUNCA faça fit() de imputadores, scalers (Min-Max/Z-Score), encoders ou SMOTE antes de dividir treino e teste/validação. Use sempre sklearn.pipeline.Pipeline para garantir isolamento rigoroso dentro de cada fold."
+            },
+            {
+                id: "Q-08",
+                blocoId: "V",
+                subtopico: "5. Pré-processamento: normalização (Min-Max), padronização (Z-Score) e encoding (One-Hot, Label).",
+                banca: "Cesgranrio",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Ao construir uma Regressão Linear Múltipla com termo de intercepto (β₀), um analista transformou uma variável categórica nominal 'Tipo_Navio' com 5 categorias distintas utilizando One-Hot Encoding completo (gerando 5 colunas binárias) e inseriu todas as 5 colunas na matriz de preditores X. Esse procedimento acarreta diretamente:",
+                alternativas: {
+                    A: "Violação da homocedasticidade dos erros aleatórios.",
+                    B: "Multicolinearidade perfeita (Dummy Variable Trap), tornando a matriz XᵀX singular e impedindo a inversão única no método dos mínimos quadrados ordinários.",
+                    C: "Redução automática da variância dos estimadores β̂.",
+                    D: "Eliminação da necessidade de verificar normalidade assintótica.",
+                    E: "Overfitting causado pela redução do posto da matriz de covariância dos resíduos."
+                },
+                gabarito: "B",
+                explicacao: "A soma das 5 colunas binárias de uma variável categórica mutuamente exclusiva é sempre igual a 1 para qualquer observação, o que é idêntico à coluna constante do intercepto (β₀). Isso cria dependência linear exata (multicolinearidade perfeita / Dummy Variable Trap), fazendo com que det(XᵀX) = 0 (matriz singular). A solução é usar k - 1 colunas (drop='first').",
+                conceitoChave: "Dummy Variable Trap vs. Escalonamento: Em modelos lineares com intercepto, codifique k categorias em k - 1 variáveis dummy. Quanto ao escalonamento: Min-Max coloca no intervalo [0, 1] (sensível a outliers); Z-Score centraliza na média 0 com desvio padrão 1."
+            },
+            {
+                id: "Q-09",
+                blocoId: "VI",
+                subtopico: "3. Métricas de avaliação: classificação (Accuracy, Precision, Recall, F1, ROC-AUC) e matriz de confusão.",
+                banca: "Cesgranrio",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Em um sistema de detecção precoce de falhas catastróficas em válvulas submarinas, deixar passar uma falha real (Falso Negativo) gera prejuízos ambientais e financeiros gravíssimos, enquanto um alarme falso (Falso Positivo) gera apenas uma inspeção remota de baixo custo. Qual métrica de classificação deve ser priorizada na otimização do limiar (threshold) desse modelo?",
+                alternativas: {
+                    A: "Acurácia global (Accuracy), pois considera igualmente todos os quadrantes da matriz de confusão.",
+                    B: "Precisão (Precision = VP / (VP + FP)), pois minimiza o custo de inspeções desnecessárias.",
+                    C: "Revocação / Sensibilidade (Recall = VP / (VP + FN)), pois maximiza a captura das falhas reais e minimiza os Falsos Negativos.",
+                    D: "Especificidade (VN / (VN + FP)), pois foca exclusivamente nos casos sem falha.",
+                    E: "Erro Quadrático Médio (RMSE), por ser a métrica padrão para classificação binária."
+                },
+                gabarito: "C",
+                explicacao: "Quando o custo do Falso Negativo (FN — deixar passar uma falha grave ou doença) é muito superior ao do Falso Positivo (FP), deve-se maximizar o Recall (Sensibilidade = VP / (VP + FN)). Já quando o custo do Falso Positivo é crítico (ex: bloquear cliente legítimo ou enviar spam para caixa principal), prioriza-se a Precision.",
+                conceitoChave: "Precision vs. Recall vs. Curva ROC: Recall (Sensibilidade) = VP/(VP+FN) — foco em não perder positivos reais. Precision = VP/(VP+FP) — foco em acertar quando prediz positivo. Na Curva ROC, o ponto (0,1) é o classificador perfeito e a diagonal representa o chute aleatório (AUC = 0,5)."
+            },
+            {
+                id: "Q-10",
+                blocoId: "VII",
+                subtopico: "5. Ensembling: Bagging, Boosting (AdaBoost, GBM, XGBoost, LightGBM, CatBoost) e Stacking.",
+                banca: "Cebraspe",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Difícil",
+                enunciado: "Sobre os algoritmos de Ensemble baseados em árvores de decisão Random Forest, Gradient Boosting (GBM) e XGBoost, assinale a opção CORRETA.",
+                alternativas: {
+                    A: "No Random Forest, as árvores são treinadas sequencialmente para corrigir os resíduos das árvores anteriores, reduzindo principalmente o viés.",
+                    B: "No XGBoost, embora a construção das árvores ocorra sequencialmente (boosting), o algoritmo realiza paralelização ao nível da busca dos melhores pontos de divisão (splits) entre as features pré-ordenadas em blocos.",
+                    C: "O CatBoost exige que todas as variáveis categóricas sejam convertidas manualmente via One-Hot Encoding antes do treinamento, pois não trata categorias nativamente.",
+                    D: "O LightGBM cresce suas árvores estritamente por nível (level-wise), enquanto o XGBoost clássico cresce por folha (leaf-wise).",
+                    E: "Métodos de Bagging aumentam a variância do estimador base em troca de reduzir o viés."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B traz um detalhe técnico muito cobrado: embora o boosting seja sequencial entre árvores (a árvore t depende dos gradientes de t-1), o XGBoost paraleliza o cálculo do ganho de split através das colunas/features em cada nó, além de incorporar regularização L1/L2 na função objetivo. Erro das demais:\n• (A) e (E) Bagging/Random Forest treina árvores independentes em paralelo para reduzir VARIÂNCIA.\n• (C) CatBoost possui tratamento nativo avançado (Ordered Target Statistics) para variáveis categóricas.\n• (D) Está invertido: LightGBM usa crescimento leaf-wise (folha de maior ganho); XGBoost tradicional usa depth-wise/level-wise.",
+                conceitoChave: "Bagging vs. Boosting (XGBoost / LightGBM / CatBoost): Bagging = paralelo, reduz variância. Boosting = sequencial nos resíduos/gradientes, reduz viés. XGBoost = gradientes de 2ª ordem + regularização L1/L2 + paralelismo nas features. LightGBM = leaf-wise + GOSS/EFB. CatBoost = árvores simétricas (oblivious) + encoding categórico ordenado."
+            },
+            {
+                id: "Q-11",
+                blocoId: "VII",
+                subtopico: "10. Redes Neurais e Deep Learning: MLP, ativação, backpropagation, CNN, RNN, LSTM, GRU.",
+                banca: "FGV",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Ao treinar Redes Neurais Recorrentes (RNNs) tradicionais em séries temporais longas ou textos extensos, surge frequentemente o problema do desvanecimento do gradiente (Vanishing Gradient). A arquitetura LSTM (Long Short-Term Memory) mitiga esse problema principalmente por meio de:",
+                alternativas: {
+                    A: "Substituição de todas as funções não lineares por funções identidade lineares.",
+                    B: "Um estado de célula (Cell State) que atravessa a sequência com interações lineares controladas por portões (Forget Gate, Input Gate e Output Gate).",
+                    C: "Aplicação de convoluções bidimensionais 3×3 com Max Pooling global.",
+                    D: "Eliminação completa da retropropagação através do tempo (BPTT).",
+                    E: "Uso exclusivo de k-means para agrupar os estados ocultos a cada passo temporal."
+                },
+                gabarito: "B",
+                explicacao: "A LSTM resolve o vanishing gradient mantendo um fluxo contínuo de memória de longo prazo (Cell State) regulado por três portões sigmoidais: Forget Gate (decide o que descartar do estado anterior), Input Gate (decide quais novas informações armazenar) e Output Gate (filtra o que vai para o estado oculto de saída). A GRU é uma variante simplificada que funde Forget e Input em um Update Gate e dispensa o Cell State separado.",
+                conceitoChave: "LSTM vs. GRU (Memória em Sequências): RNNs simples sofrem de vanishing gradient em dependências longas. LSTM usa Cell State + 3 portões (Forget, Input, Output). GRU usa 2 portões (Reset e Update) sem Cell State separado, sendo mais leve."
+            },
+            {
+                id: "Q-12",
+                blocoId: "VIII",
+                subtopico: "4. Modelos de linguagem: tradicionais, RNNs, CNNs e Transformers (Encoder BERT vs Decoder GPT).",
+                banca: "Cesgranrio",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Em tarefas de Processamento de Linguagem Natural (NLP), modelos baseados na arquitetura Transformer superaram os embeddings estáticos (como Word2Vec e GloVe). Assinale a alternativa que diferencia CORRETAMENTE o BERT de modelos como Word2Vec e GPT.",
+                alternativas: {
+                    A: "O Word2Vec gera representações dinâmicas que mudam conforme o contexto da frase, enquanto o BERT atribui sempre o mesmo vetor fixo para palavras polissêmicas.",
+                    B: "O BERT utiliza a pilha de Encoders do Transformer com atenção bidirecional (Masked Language Modeling), gerando embeddings contextualizados que capturam o significado da palavra conforme toda a sentença.",
+                    C: "O GPT utiliza apenas a pilha de Encoders do Transformer e é treinado exclusivamente para classificação binária sem capacidade generativa.",
+                    D: "A técnica de Stemming preserva sempre a classe gramatical e gera palavras válidas do dicionário, ao contrário da Lematização.",
+                    E: "O modelo LDA (Latent Dirichlet Allocation) é um classificador supervisionado baseado em redes convolucionais."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B está correta: o BERT (Encoder bidirecional) analisa o contexto à esquerda e à direita simultaneamente via Self-Attention, gerando vetores dinâmicos (contextualizados) — essenciais para polissemia (ex: 'banco' financeiro vs 'banco' de praça). Erro das demais:\n• (A) Inverteu Word2Vec (estático) com BERT (contextual).\n• (C) GPT usa Decoder autoregressivo/causal (unidirecional).\n• (D) Lematização reduz ao lema gramatical válido (ex: 'fomos' → 'ir'); Stemming corta sufixos heuristicamente podendo gerar radicais inexistentes.\n• (E) LDA é um modelo generativo probabilístico não supervisionado para modelagem de tópicos.",
+                conceitoChave: "NLP Moderno: Word2Vec (CBOW/Skip-gram) = embeddings estáticos. BERT = Transformer Encoder bidirecional (compreensão, NER, classificação). GPT = Transformer Decoder causal/unidirecional (geração de texto). LDA = modelagem de tópicos probabilística (Bag-of-Words)."
+            },
+            {
+                id: "Q-13",
+                blocoId: "IX",
+                subtopico: "3. Linguagem SQL: DQL, DML, DDL, agregações, filtros (IS NULL), JOINs, subconsultas e Window Functions.",
+                banca: "Cesgranrio",
+                ano: "2023",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "Considere uma tabela SQL chamada 'telemetria_dutos(id_registro, duto_id, pressao_bar, data_hora)'. Um engenheiro de dados deseja consultar todos os registros individuais onde 'pressao_bar' não é nula, exibindo também a média de pressão do respectivo duto ao lado de cada linha sem agrupar/colapsar os registros. A consulta SQL válida e adequada é:",
+                alternativas: {
+                    A: "SELECT id_registro, duto_id, pressao_bar, AVG(pressao_bar) FROM telemetria_dutos WHERE pressao_bar != NULL GROUP BY duto_id;",
+                    B: "SELECT id_registro, duto_id, pressao_bar, AVG(pressao_bar) OVER (PARTITION BY duto_id) AS media_duto FROM telemetria_dutos WHERE pressao_bar IS NOT NULL;",
+                    C: "SELECT id_registro, duto_id, pressao_bar, AVG(pressao_bar) OVER (GROUP BY duto_id) FROM telemetria_dutos WHERE pressao_bar = NULL;",
+                    D: "SELECT id_registro, duto_id, pressao_bar FROM telemetria_dutos HAVING pressao_bar IS NOT NULL;",
+                    E: "SELECT id_registro, duto_id, pressao_bar, RANK(pressao_bar) FROM telemetria_dutos WHERE NOT NULL;"
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B aplica duas regras essenciais de SQL:\n1. Para verificar valores nulos usa-se 'IS NOT NULL' (comparações como '= NULL' ou '!= NULL' retornam UNKNOWN/falso em SQL padrão).\n2. Window Functions com 'OVER (PARTITION BY duto_id)' calculam a agregação por partição mantendo todas as linhas individuais intactas, diferentemente do GROUP BY.",
+                conceitoChave: "SQL Analítico (IS NULL & Window Functions): Nunca use '= NULL' em SQL (use 'IS NULL' ou 'IS NOT NULL'). Para cálculos por grupo sem reduzir o número de linhas (ranking, média móvel, LAG/LEAD), use Window Functions: FUNÇÃO() OVER (PARTITION BY ... ORDER BY ...)."
+            },
+            {
+                id: "Q-14",
+                blocoId: "IX",
+                subtopico: "4. Microsoft Power BI: Power Query (M), Import vs DirectQuery, DAX (medidas vs colunas), RLS e licenciamento.",
+                banca: "FGV",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "No desenvolvimento de painéis corporativos no Microsoft Power BI, sobre a diferença entre Colunas Calculadas e Medidas em DAX e os recursos de segurança e compartilhamento, assinale a afirmativa CORRETA.",
+                alternativas: {
+                    A: "Medidas DAX são pré-calculadas linha a linha durante a atualização dos dados e armazenadas fisicamente na memória RAM aumentando o tamanho do arquivo .pbix.",
+                    B: "Colunas Calculadas são avaliadas no contexto de linha durante o processamento (refresh) e armazenadas na tabela, enquanto Medidas são avaliadas dinamicamente em tempo de consulta conforme o contexto de filtro.",
+                    C: "A opção 'Publicar na Web' (Publish to Web) no Power BI Service aplica automaticamente Row-Level Security (RLS) restrito apenas aos diretores da empresa.",
+                    D: "O modo DirectQuery importa uma cópia estática completa de todas as tabelas para o cache interno do Power BI, dispensando acesso à fonte durante a interação.",
+                    E: "Um usuário com licença Power BI Free pode compartilhar livremente relatórios de seu 'Meu Workspace' com qualquer usuário externo sem Capacidade Premium."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B diferencia perfeitamente Colunas Calculadas (contexto de linha, materializadas no modelo durante o refresh, consomem RAM) de Medidas (contexto de filtro, calculadas sob demanda quando o usuário interage com visuais, consomem CPU). Erro das demais:\n• (C) 'Publicar na Web' torna o relatório PÚBLICO na internet para qualquer pessoa com o link (nunca usar para dados corporativos).\n• (D) DirectQuery consulta a fonte em tempo real sem importar dados.\n• (E) Usuários Free só consomem relatórios compartilhados se estiverem hospedados em Capacidade Premium (P).",
+                conceitoChave: "Power BI (DAX, RLS & Governança): Coluna Calculada = Contexto de Linha + Armazenada em RAM. Medida = Contexto de Filtro + Calculada em tempo real. RLS (Row-Level Security) = regras DAX no Desktop + atribuição de usuários no Service. 'Publicar na Web' = link público aberto."
+            },
+            {
+                id: "Q-15",
+                blocoId: "XI",
+                subtopico: "1. Governança de Dados (DMBOK): papéis (Owner, Steward, Custodian), MDM e LGPD (RIPD, DPO).",
+                banca: "Cebraspe",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "De acordo com o guia DMBOK e a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD) aplicados à governança de dados e modelos analíticos, assinale a opção CORRETA.",
+                alternativas: {
+                    A: "O Data Custodian (Custodiante) é o executivo de negócio que detém a autoridade para definir as regras de negócio e aprovar quem pode acessar os dados.",
+                    B: "Segundo a LGPD, o titular dos dados pessoais tem o direito de solicitar a revisão de decisões tomadas unicamente com base em tratamento automatizado que afetem seus interesses, incluindo decisões destinadas a definir seu perfil pessoal ou profissional.",
+                    C: "Após o término do tratamento de dados pessoais, a LGPD proíbe qualquer forma de conservação para uso exclusivo do controlador, mesmo que os dados sejam integralmente anonimizados.",
+                    D: "O Relatório de Impacto à Proteção de Dados Pessoais (RIPD) deve ser elaborado exclusivamente pelo Operador e publicado integralmente na internet sem proteção a segredos comercial e industrial.",
+                    E: "Dados anonimizados são sempre considerados dados pessoais sensíveis pela LGPD, independentemente de o processo de anonimização ser irreversível."
+                },
+                gabarito: "B",
+                explicacao: "A alternativa B reflete o Art. 20 da LGPD (direito à explicação e revisão de decisões automatizadas/algorítmicas). Erro das demais:\n• (A) Quem define regras de acesso e significado é o Data Owner / Data Steward; o Custodian implementa tecnicamente e mantém a infraestrutura.\n• (C) O Art. 16, IV da LGPD autoriza a conservação para uso exclusivo do controlador, vedado o acesso por terceiro, DESDE QUE anonimizados os dados.\n• (D) O RIPD é responsabilidade do Controlador e deve resguardar os segredos comercial e industrial (Art. 38).\n• (E) Dados anonimizados não são considerados dados pessoais pela LGPD, salvo quando o processo de anonimização puder ser revertido (Art. 12).",
+                conceitoChave: "DMBOK + LGPD na Ciência de Dados: Owner = decide/manda | Steward = cuida do significado/qualidade | Custodian = guarda/infraestrutura. Na LGPD: Art. 20 garante revisão de decisões automatizadas; Art. 16 permite retenção pelo controlador se anonimizado; RIPD protege segredo industrial."
+            },
+            {
+                id: "Q-16",
+                blocoId: "XII",
+                subtopico: "2. Riscos e vulnerabilidades em IA: viés algorítmico, data poisoning, ataques adversariais; 3. IA Responsável (SHAP/LIME).",
+                banca: "Cesgranrio",
+                ano: "2024",
+                origem: "PREVIOUS",
+                nivel: "Médio",
+                enunciado: "No contexto de segurança cibernética e governança de modelos de Inteligência Artificial (IA Responsável), um atacante insere propositalmente amostras adulteradas com rótulos falsos na base histórica antes do retreinamento periódico de um modelo preditivo, degradando sua acurácia e criando portas dos fundos (backdoors) nas predições. Esse ataque é classificado como:",
+                alternativas: {
+                    A: "Ataque de Inversão de Modelo (Model Inversion) em tempo de inferência.",
+                    B: "Envenenamento de Dados de Treinamento (Data Poisoning).",
+                    C: "Alucinação estocástica de decodificação autoregressiva.",
+                    D: "Normalização Z-Score com vazamento de variância.",
+                    E: "Podagem de ramos (Cost-Complexity Pruning) em árvores CART."
+                },
+                gabarito: "B",
+                explicacao: "O Data Poisoning (Envenenamento de Dados) ocorre na fase de treinamento/ingestão, quando agentes maliciosos corrompem os dados de treino para comprometer a integridade ou o comportamento do modelo. Diferencia-se de Evasion/Adversarial Attacks (manipulação da entrada na fase de inferência, como perturbar pixels de uma imagem) e de Model Inversion/Extraction (tentar reconstruir dados sensíveis de treino ou roubar os parâmetros do modelo via consultas à API).",
+                conceitoChave: "Taxonomia de Riscos e Segurança em IA: Data Poisoning = corrompe dados de TREINO. Ataque Adversarial (Evasion) = perturba entrada na INFERÊNCIA. Model Inversion / Membership Inference = vaza dados privados de treino via outputs. Model Extraction = rouba o modelo replicando suas respostas."
+            }
+        ];
+
+        // =========================================================================
+        // 3. ESTADO GLOBAL & LOCALSTORAGE
+        // =========================================================================
+        const STORAGE_KEYS = {
+            QUESTIONS: 'estudadata_tp_questions_v2',
+            PROGRESS: 'estudadata_tp_progress_v2',
+            EDITAL: 'estudadata_tp_edital_v2',
+            API_KEY: 'estudadata_tp_gemini_key_v2',
+            THEME: 'estudadata_tp_theme_v2'
+        };
+
+        let state = {
+            questions: [],
+            progress: {},
+            editalDone: {},
+            filteredQuestions: [],
+            currentIndex: 0,
+            pendingSelection: null
+        };
+
+        // Inicialização ao carregar o DOM
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadAllData();
+            populateAllSelects();
+            applyFilters();
+            renderEdital();
+            renderAiHistory();
+            updateGlobalStats();
+            setupKeyboardShortcuts();
+        });
+
+        function loadAllData() {
+            try {
+                const rawQ = localStorage.getItem(STORAGE_KEYS.QUESTIONS);
+                if (rawQ) {
+                    const parsed = JSON.parse(rawQ);
+                    state.questions = Array.isArray(parsed) && parsed.length > 0 ? parsed : [...INITIAL_QUESTIONS];
+                } else {
+                    state.questions = [...INITIAL_QUESTIONS];
+                    saveQuestions();
+                }
+
+                const rawP = localStorage.getItem(STORAGE_KEYS.PROGRESS);
+                state.progress = rawP ? JSON.parse(rawP) : {};
+
+                const rawE = localStorage.getItem(STORAGE_KEYS.EDITAL);
+                state.editalDone = rawE ? JSON.parse(rawE) : {};
+
+                const savedKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
+                if (savedKey) {
+                    document.getElementById('geminiApiKeyInput').value = savedKey;
+                }
+            } catch (e) {
+                console.error("Erro ao carregar LocalStorage:", e);
+                state.questions = [...INITIAL_QUESTIONS];
+            }
+        }
+
+        function saveQuestions() {
+            localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(state.questions));
+        }
+        function saveProgress() {
+            localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(state.progress));
+        }
+        function saveEdital() {
+            localStorage.setItem(STORAGE_KEYS.EDITAL, JSON.stringify(state.editalDone));
+        }
+
+        // =========================================================================
+        // 4. TEMA CLARO / ESCURO & NAVEGAÇÃO ENTRE ABAS
+        // =========================================================================
+        function initTheme() {
+            const saved = localStorage.getItem(STORAGE_KEYS.THEME) || 'dark';
+            applyTheme(saved);
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const next = isDark ? 'light' : 'dark';
+            localStorage.setItem(STORAGE_KEYS.THEME, next);
+            applyTheme(next);
+        }
+
+        function applyTheme(mode) {
+            const html = document.documentElement;
+            const iconM = document.getElementById('themeIconMobile');
+            const iconD = document.getElementById('themeIconDesktop');
+            if (mode === 'dark') {
+                html.classList.add('dark');
+                if (iconM) iconM.textContent = '☀️';
+                if (iconD) iconD.textContent = '☀️';
+            } else {
+                html.classList.remove('dark');
+                if (iconM) iconM.textContent = '🌙';
+                if (iconD) iconD.textContent = '🌙';
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-white', 'dark:hover:bg-petro-800');
+            });
+
+            const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-white', 'dark:hover:bg-petro-800');
+                activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow');
+            }
+
+            if (tabId === 'banco') {
+                renderBancoDashboard();
+            } else if (tabId === 'edital') {
+                renderEdital();
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const styles = {
+                success: 'bg-emerald-900 border-emerald-500 text-emerald-100',
+                error: 'bg-rose-900 border-rose-500 text-rose-100',
+                warning: 'bg-amber-900 border-amber-500 text-amber-100',
+                info: 'bg-petro-900 border-sky-400 text-sky-100'
+            };
+            toast.className = `pointer-events-auto p-3.5 rounded-xl border shadow-xl text-xs font-semibold transition-all duration-300 ${styles[type] || styles.info}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3800);
+        }
+
+        // =========================================================================
+        // 5. POPULAR SELECTS DO EDITAL
+        // =========================================================================
+        function populateAllSelects() {
+            const filterBloco = document.getElementById('filterBloco');
+            const genBloco = document.getElementById('genBloco');
+
+            EDITAL_BLOCOS.forEach(b => {
+                const o1 = document.createElement('option');
+                o1.value = b.id;
+                o1.textContent = b.titulo;
+                filterBloco.appendChild(o1);
+
+                const o2 = document.createElement('option');
+                o2.value = b.id;
+                o2.textContent = b.titulo;
+                genBloco.appendChild(o2);
+            });
+
+            updateGenSubtopicos();
+        }
+
+        function updateGenSubtopicos() {
+            const blocoId = document.getElementById('genBloco').value;
+            const subSelect = document.getElementById('genSubtopico');
+            subSelect.innerHTML = '';
+
+            const bloco = EDITAL_BLOCOS.find(b => b.id === blocoId) || EDITAL_BLOCOS[0];
+            bloco.subtopicos.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                subSelect.appendChild(opt);
+            });
+        }
+
+        // =========================================================================
+        // 6. ABA 1: RESOLUÇÃO DE QUESTÕES & TUTOR IA (CLIQUE DIRETO GARANTIDO)
+        // =========================================================================
+        function applyFilters() {
+            const bloco = document.getElementById('filterBloco').value;
+            const banca = document.getElementById('filterBanca').value;
+            const origem = document.getElementById('filterOrigem').value;
+            const status = document.getElementById('filterStatus').value;
+
+            state.filteredQuestions = state.questions.filter(q => {
+                if (bloco !== 'ALL' && q.blocoId !== bloco) return false;
+                if (banca !== 'ALL' && !q.banca.toLowerCase().includes(banca.toLowerCase())) return false;
+                if (origem !== 'ALL' && q.origem !== origem) return false;
+
+                const prog = state.progress[q.id];
+                if (status === 'UNANSWERED' && prog) return false;
+                if (status === 'WRONG' && (!prog || prog.isCorrect)) return false;
+                if (status === 'CORRECT' && (!prog || !prog.isCorrect)) return false;
+
+                return true;
+            });
+
+            state.currentIndex = 0;
+            state.pendingSelection = null;
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionCardContainer');
+            const total = state.filteredQuestions.length;
+
+            document.getElementById('qTotalFiltered').textContent = total;
+            document.getElementById('qCurrentNum').textContent = total > 0 ? state.currentIndex + 1 : 0;
+            document.getElementById('btnPrevQ').disabled = state.currentIndex <= 0;
+            document.getElementById('btnNextQ').disabled = state.currentIndex >= total - 1;
+
+            if (total === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-4">
+                        <div class="text-4xl">🔍</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Nenhuma questão encontrada neste filtro</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                            Limpe os filtros acima ou vá para a aba <strong>Gerador Inédito (IA)</strong> para criar novas questões sobre este assunto agora mesmo!
+                        </p>
+                        <button type="button" onclick="switchTab('gerador')" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow transition">
+                            ✨ Gerar Questão Inédita com IA
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = state.filteredQuestions[state.currentIndex];
+            const blocoObj = EDITAL_BLOCOS.find(b => b.id === q.blocoId);
+            const answeredData = state.progress[q.id];
+            const isAnswered = Boolean(answeredData);
+            const chosenLetter = isAnswered ? answeredData.selected : state.pendingSelection;
+
+            const originBadge = q.origem === 'AI'
+                ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">✨ Inédita IA • ${q.banca}</span>`
+                : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30">📄 Prova Anterior • ${q.banca} (${q.ano})</span>`;
+
+            const letters = Object.keys(q.alternativas); // ['A','B','C','D','E']
+
+            const optionsButtonsHtml = letters.map(letter => {
+                let cardClasses = 'bg-slate-50 dark:bg-petro-950/90 border-slate-300 dark:border-petro-700 text-slate-800 dark:text-slate-200 hover:border-emerald-500 dark:hover:border-emerald-400';
+                let badgeClasses = 'bg-white dark:bg-petro-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-petro-600';
+                let statusTag = '';
+
+                if (isAnswered) {
+                    if (letter === q.gabarito) {
+                        cardClasses = 'bg-emerald-50 dark:bg-emerald-950/75 border-emerald-500 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500';
+                        badgeClasses = 'bg-emerald-500 text-white font-extrabold border-emerald-500';
+                        statusTag = `<span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 shrink-0">✔ Gabarito</span>`;
+                    } else if (letter === chosenLetter && letter !== q.gabarito) {
+                        cardClasses = 'bg-rose-50 dark:bg-rose-950/75 border-rose-500 text-rose-950 dark:text-rose-100 ring-1 ring-rose-500';
+                        badgeClasses = 'bg-rose-500 text-white font-extrabold border-rose-500';
+                        statusTag = `<span class="text-xs font-extrabold text-rose-600 dark:text-rose-400 shrink-0">✖ Sua escolha</span>`;
+                    } else {
+                        cardClasses = 'bg-slate-50/50 dark:bg-petro-950/40 border-slate-200 dark:border-petro-800 text-slate-400 dark:text-slate-500 opacity-75';
+                    }
+                } else if (chosenLetter === letter) {
+                    cardClasses = 'bg-emerald-50/70 dark:bg-petro-800 border-emerald-500 text-slate-900 dark:text-white ring-2 ring-emerald-500/40';
+                    badgeClasses = 'bg-emerald-600 text-white font-bold border-emerald-500';
+                }
+
+                return `
+                    <button type="button"
+                            onclick="handleSelectOption('${letter}')"
+                            ${isAnswered ? 'disabled' : ''}
+                            class="option-btn w-full text-left p-3.5 sm:p-4 rounded-xl border-2 flex items-start gap-3.5 ${cardClasses}">
+                        <span class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${badgeClasses}">
+                            ${letter}
+                        </span>
+                        <span class="text-xs sm:text-sm leading-relaxed flex-1">${q.alternativas[letter]}</span>
+                        ${statusTag}
+                    </button>
+                `;
+            }).join('');
+
+            // Seção de Gabarito Comentado + Pílula Teórica + Tutor IA (exibida após responder)
+            let explanationSectionHtml = '';
+            if (isAnswered) {
+                const isRight = answeredData.isCorrect;
+                explanationSectionHtml = `
+                    <div class="mt-7 pt-6 border-t border-slate-200 dark:border-petro-700/80 space-y-5">
+                        <!-- Banner de Resultado -->
+                        <div class="p-4 rounded-xl border-2 flex flex-wrap items-center justify-between gap-3 ${isRight ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500/60 text-emerald-900 dark:text-emerald-200' : 'bg-rose-50 dark:bg-rose-950/60 border-rose-500/60 text-rose-900 dark:text-rose-200'}">
+                            <div>
+                                <h4 class="font-extrabold text-sm sm:text-base">
+                                    ${isRight ? '🎉 Resposta Correta! Excelente domínio do tema.' : `❌ Resposta Incorreta — O gabarito oficial é a letra ${q.gabarito}.`}
+                                </h4>
+                                <p class="text-xs opacity-90 mt-0.5">Você marcou: <strong>${chosenLetter}</strong> | Gabarito: <strong>${q.gabarito}</strong></p>
+                            </div>
+                            <button type="button" onclick="resetSingleQuestion('${q.id}')" class="px-3.5 py-2 rounded-xl bg-white dark:bg-petro-900 hover:bg-slate-100 dark:hover:bg-petro-800 text-xs font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-petro-600 transition">
+                                ↻ Refazer Questão
+                            </button>
+                        </div>
+
+                        <!-- Gabarito Comentado -->
+                        <div class="bg-slate-50 dark:bg-petro-950 border border-slate-200 dark:border-petro-700/80 rounded-2xl p-5 space-y-2">
+                            <h5 class="text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                📝 Gabarito Comentado (Análise das Alternativas)
+                            </h5>
+                            <p class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line">${q.explicacao}</p>
+                        </div>
+
+                        <!-- Pílula Teórica do Conceito + Tutor IA -->
+                        <div class="bg-gradient-to-br from-sky-50 to-emerald-50/40 dark:from-petro-900 dark:to-petro-950 border border-sky-300 dark:border-sky-500/40 rounded-2xl p-5 space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <h5 class="text-xs font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+                                    💡 Pílula Teórica do Conceito Cobrado
+                                </h5>
+                                <button type="button" id="btnTutor-${q.id}" onclick="handleTutorDeepDive('${q.id}')" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow transition">
+                                    🤖 Aprofundar Explicação com Tutor IA
+                                </button>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed">${q.conceitoChave}</p>
+
+                            <div id="tutorOutput-${q.id}" class="${q.tutorExtra ? '' : 'hidden'} pt-3 border-t border-sky-200 dark:border-petro-700">
+                                ${q.tutorExtra ? `<div class="p-4 rounded-xl bg-white dark:bg-petro-950 border border-emerald-400/50 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line"><strong class="text-emerald-600 dark:text-emerald-400 block mb-1.5">🎓 Microaula do Tutor IA:</strong>${q.tutorExtra}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <!-- Metadados da Questão -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-200 dark:border-petro-700/70">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-petro-800 text-emerald-700 dark:text-emerald-300 font-mono text-xs font-extrabold border border-slate-300 dark:border-petro-600">${q.id}</span>
+                        ${originBadge}
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30">${q.nivel}</span>
+                    </div>
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-petro-950 px-3 py-1 rounded-lg border border-slate-200 dark:border-petro-800">
+                        ${blocoObj ? blocoObj.titulo : `Bloco ${q.blocoId}`}
+                    </span>
+                </div>
+
+                <!-- Subtópico -->
+                <div class="mb-4 text-xs text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-petro-950/70 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-petro-800">
+                    <strong>Subtópico do Edital:</strong> ${q.subtopico}
+                </div>
+
+                <!-- Enunciado -->
+                <div class="text-sm sm:text-base text-slate-900 dark:text-white font-medium leading-relaxed mb-6 whitespace-pre-line">
+                    ${q.enunciado}
+                </div>
+
+                <!-- Botões de Alternativas -->
+                <div class="space-y-3" role="group" aria-label="Alternativas da questão">
+                    ${optionsButtonsHtml}
+                </div>
+
+                <!-- Botão Confirmar Resposta -->
+                ${!isAnswered ? `
+                    <div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-petro-800">
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            ${chosenLetter ? `Alternativa <strong>${chosenLetter}</strong> selecionada. Clique ao lado ou pressione Enter.` : 'Clique em uma alternativa acima (ou pressione A, B, C, D, E).'}
+                        </span>
+                        <button type="button"
+                                onclick="handleConfirmAnswer()"
+                                ${!chosenLetter ? 'disabled' : ''}
+                                class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold text-sm shadow-md transition">
+                            ✔ Confirmar Resposta
+                        </button>
+                    </div>
+                ` : ''}
+
+                ${explanationSectionHtml}
+            `;
+        }
+
+        function handleSelectOption(letter) {
+            const q = state.filteredQuestions[state.currentIndex];
+            if (!q || state.progress[q.id]) return;
+            state.pendingSelection = letter;
+            renderCurrentQuestion();
+        }
+
+        function handleConfirmAnswer() {
+            const q = state.filteredQuestions[state.currentIndex];
+            if (!q || state.progress[q.id] || !state.pendingSelection) return;
+
+            const isCorrect = state.pendingSelection === q.gabarito;
+            state.progress[q.id] = {
+                selected: state.pendingSelection,
+                isCorrect: isCorrect,
+                answeredAt: new Date().toISOString()
+            };
+            saveProgress();
+            updateGlobalStats();
+            renderCurrentQuestion();
+
+            if (isCorrect) {
+                showToast("Acertou! Veja a pílula teórica abaixo.", "success");
+            } else {
+                showToast(`Gabarito: ${q.gabarito}. Confira o comentário detalhado!`, "warning");
+            }
+        }
+
+        function resetSingleQuestion(qId) {
+            delete state.progress[qId];
+            saveProgress();
+            state.pendingSelection = null;
+            updateGlobalStats();
+            renderCurrentQuestion();
+        }
+
+        function navigateQuestion(delta) {
+            const next = state.currentIndex + delta;
+            if (next >= 0 && next < state.filteredQuestions.length) {
+                state.currentIndex = next;
+                state.pendingSelection = null;
+                renderCurrentQuestion();
+            }
+        }
+
+        function pickRandomQuestion() {
+            const len = state.filteredQuestions.length;
+            if (len <= 1) return;
+            let idx = state.currentIndex;
+            while (idx === state.currentIndex) {
+                idx = Math.floor(Math.random() * len);
+            }
+            state.currentIndex = idx;
+            state.pendingSelection = null;
+            renderCurrentQuestion();
+        }
+
+        // Atalhos de Teclado (A-E / 1-5, Enter, Setas Esquerda/Direita)
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ignorar se o foco estiver em input, select ou textarea
+                const tag = document.activeElement?.tagName;
+                if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+
+                // Só ativa atalhos quando a aba Resolver estiver visível
+                const resolverView = document.getElementById('view-resolver');
+                if (!resolverView || resolverView.classList.contains('hidden')) return;
+
+                const key = e.key.toUpperCase();
+                const mapNumToLetter = { '1': 'A', '2': 'B', '3': 'C', '4': 'D', '5': 'E' };
+
+                if (['A', 'B', 'C', 'D', 'E'].includes(key)) {
+                    e.preventDefault();
+                    handleSelectOption(key);
+                } else if (mapNumToLetter[key]) {
+                    e.preventDefault();
+                    handleSelectOption(mapNumToLetter[key]);
+                } else if (e.key === 'Enter') {
+                    const q = state.filteredQuestions[state.currentIndex];
+                    if (q && !state.progress[q.id] && state.pendingSelection) {
+                        e.preventDefault();
+                        handleConfirmAnswer();
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigateQuestion(-1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    navigateQuestion(1);
+                }
+            });
+        }
+
+        // =========================================================================
+        // 7. INTEGRAÇÃO COM API GEMINI (GERADOR INÉDITO & TUTOR IA)
+        // =========================================================================
+        function getGeminiApiKey() {
+            const k = localStorage.getItem(STORAGE_KEYS.API_KEY);
+            return k ? k.trim() : "";
+        }
+
+        async function callGeminiAPI(payload, retries = 4) {
+            const apiKey = getGeminiApiKey();
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            let wait = 1000;
+
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        throw new Error(`Erro HTTP ${res.status}`);
+                    }
+                    const json = await res.json();
+                    const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("Resposta vazia da API Gemini.");
+                    return text;
+                } catch (err) {
+                    if (attempt === retries) throw err;
+                    await new Promise(r => setTimeout(r, wait));
+                    wait *= 2;
+                }
+            }
+        }
+
+        // Tutor IA na aba de resolução
+        async function handleTutorDeepDive(qId) {
+            const q = state.questions.find(item => item.id === qId);
+            if (!q) return;
+
+            const btn = document.getElementById(`btnTutor-${qId}`);
+            const box = document.getElementById(`tutorOutput-${qId}`);
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Gerando microaula com IA...";
+            box.classList.remove('hidden');
+            box.innerHTML = `<div class="p-4 rounded-xl bg-white dark:bg-petro-950 border border-sky-400/50 text-xs text-sky-600 dark:text-sky-300 animate-pulse">O Tutor IA está preparando uma microaula com intuição teórica, exemplo prático e pegadinhas da banca ${q.banca}...</div>`;
+
+            const prompt = `Você é um professor especialista preparatório para o concurso da Transpetro (Ênfase 8: Ciência de Dados).
+O aluno acabou de responder a questão abaixo:
+- Bloco/Subtópico: ${q.subtopico}
+- Banca: ${q.banca}
+- Enunciado: ${q.enunciado}
+- Gabarito: ${q.gabarito} (${q.alternativas[q.gabarito]})
+
+Escreva uma microaula didática, clara e objetiva (máximo 3 blocos curtos) sobre o CONCEITO COBRADO na questão, contendo:
+1. Explicação intuitiva e rigorosa do conceito;
+2. Um exemplo prático rápido (código Python/SQL, fórmula ou caso de engenharia de dados/energia);
+3. Principais pegadinhas que as bancas (Cesgranrio/Cebraspe/FGV) costumam cobrar sobre esse assunto.`;
+
+            try {
+                const reply = await callGeminiAPI({
+                    contents: [{ parts: [{ text: prompt }] }]
+                });
+                q.tutorExtra = reply;
+                saveQuestions();
+
+                box.innerHTML = `
+                    <div class="p-4 rounded-xl bg-white dark:bg-petro-950 border border-emerald-500/50 text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line">
+                        <strong class="text-emerald-600 dark:text-emerald-400 block mb-1.5">🎓 Microaula do Tutor IA:</strong>
+                        ${reply}
+                    </div>
+                `;
+            } catch (err) {
+                box.innerHTML = `<div class="p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-xs text-rose-200">Não foi possível conectar à IA agora. Se estiver rodando fora do ambiente padrão, configure sua Gemini API Key na Aba 4.</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "🤖 Atualizar Explicação com Tutor IA";
+            }
+        }
+
+        // Gerador de Questões Inéditas (Aba 2)
+        async function handleGenerateQuestions() {
+            const blocoId = document.getElementById('genBloco').value;
+            const subtopico = document.getElementById('genSubtopico').value;
+            const banca = document.getElementById('genBanca').value;
+            const nivel = document.getElementById('genNivel').value;
+            const qtd = parseInt(document.getElementById('genQtd').value, 10) || 1;
+            const extraFocus = document.getElementById('genExtraFocus').value.trim();
+
+            const btn = document.getElementById('btnGenerateQuestions');
+            const panel = document.getElementById('genResultPanel');
+
+            btn.disabled = true;
+            btn.textContent = `⏳ Gerando ${qtd} questão(ões) inédita(s) estilo ${banca}...`;
+
+            panel.innerHTML = `
+                <div class="text-center py-10 space-y-3">
+                    <div class="text-4xl animate-bounce">⚙️</div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Elaborando questões inéditas com IA...</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                        Criando enunciados no estilo <strong>${banca}</strong>, validando gabarito único e estruturando a pílula teórica para salvar no banco local.
+                    </p>
+                </div>
+            `;
+
+            const systemPrompt = `Você é uma banca examinadora especialista em concursos de Ciência de Dados (Petrobras / Transpetro — Ênfase 8).
+Crie exatamente ${qtd} questão(ões) inédita(s) de múltipla escolha (alternativas A, B, C, D, E), com apenas UMA alternativa correta, rigor técnico alto e contextualização realista quando aplicável.
+Retorne estritamente um array JSON conforme o schema.`;
+
+            const userPrompt = `Parâmetros obrigatórios:
+- Quantidade de questões: ${qtd}
+- Bloco do Edital: ${blocoId}
+- Subtópico: ${subtopico}
+- Estilo da Banca: ${banca}
+- Nível de Dificuldade: ${nivel}
+${extraFocus ? `- Foco Adicional: ${extraFocus}` : ''}
+
+Para cada questão:
+1. Elabore enunciado claro e 5 alternativas (A a E) plausíveis;
+2. No campo 'explicacao', justifique o gabarito e aponte o erro de cada uma das 4 alternativas incorretas;
+3. No campo 'conceitoChave', explique de forma didática o conceito teórico utilizado na questão.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                enunciado: { type: "STRING" },
+                                A: { type: "STRING" },
+                                B: { type: "STRING" },
+                                C: { type: "STRING" },
+                                D: { type: "STRING" },
+                                E: { type: "STRING" },
+                                gabarito: { type: "STRING", enum: ["A", "B", "C", "D", "E"] },
+                                explicacao: { type: "STRING" },
+                                conceitoChave: { type: "STRING" }
+                            },
+                            required: ["enunciado", "A", "B", "C", "D", "E", "gabarito", "explicacao", "conceitoChave"]
+                        }
+                    }
+                }
+            };
+
+            try {
+                const raw = await callGeminiAPI(payload);
+                const list = JSON.parse(raw);
+
+                if (!Array.isArray(list) || list.length === 0) {
+                    throw new Error("Formato inválido retornado pela IA.");
+                }
+
+                let existingAiCount = state.questions.filter(q => q.origem === 'AI').length;
+                const createdItems = [];
+
+                list.forEach(item => {
+                    existingAiCount++;
+                    const newQ = {
+                        id: `Q-IA-${String(existingAiCount).padStart(2, '0')}`,
+                        blocoId: blocoId,
+                        subtopico: subtopico,
+                        banca: `${banca} (Inédita IA)`,
+                        ano: new Date().getFullYear().toString(),
+                        origem: "AI",
+                        nivel: nivel,
+                        enunciado: item.enunciado,
+                        alternativas: {
+                            A: item.A,
+                            B: item.B,
+                            C: item.C,
+                            D: item.D,
+                            E: item.E
+                        },
+                        gabarito: item.gabarito,
+                        explicacao: item.explicacao,
+                        conceitoChave: item.conceitoChave
+                    };
+                    state.questions.unshift(newQ);
+                    createdItems.push(newQ);
+                });
+
+                saveQuestions();
+                updateGlobalStats();
+                renderAiHistory();
+
+                panel.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-petro-700">
+                            <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+                                ✔ ${createdItems.length} questão(ões) salva(s) automaticamente no banco!
+                            </span>
+                            <button type="button" onclick="openQuestionById('${createdItems[0].id}')" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow transition">
+                                ▶ Ir Resolver Agora (${createdItems[0].id})
+                            </button>
+                        </div>
+                        <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                            ${createdItems.map(cq => `
+                                <div class="p-4 rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-200 dark:border-petro-800 space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">${cq.id} • ${cq.banca}</span>
+                                        <button type="button" onclick="openQuestionById('${cq.id}')" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline">Resolver →</button>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium">${cq.enunciado}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                showToast(`${createdItems.length} questão(ões) inédita(s) adicionada(s) ao acervo!`, "success");
+            } catch (err) {
+                console.error(err);
+                panel.innerHTML = `
+                    <div class="text-center py-8 space-y-3">
+                        <div class="text-3xl">⚠️</div>
+                        <h3 class="text-sm font-bold text-rose-600 dark:text-rose-400">Falha ao gerar questões com IA</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                            Verifique sua conexão ou insira sua chave gratuita da API Gemini na <strong>Aba 4 (Banco Open Source & Exportação)</strong>.
+                        </p>
+                    </div>
+                `;
+                showToast("Erro ao conectar com a API do Gemini.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "✨ Gerar & Salvar no Banco de Dados";
+            }
+        }
+
+        function openQuestionById(qId) {
+            document.getElementById('filterBloco').value = 'ALL';
+            document.getElementById('filterBanca').value = 'ALL';
+            document.getElementById('filterOrigem').value = 'ALL';
+            document.getElementById('filterStatus').value = 'ALL';
+            applyFilters();
+
+            const idx = state.filteredQuestions.findIndex(q => q.id === qId);
+            if (idx !== -1) {
+                state.currentIndex = idx;
+                state.pendingSelection = null;
+                renderCurrentQuestion();
+            }
+            switchTab('resolver');
+        }
+
+        function renderAiHistory() {
+            const listEl = document.getElementById('aiHistoryList');
+            const aiList = state.questions.filter(q => q.origem === 'AI');
+            document.getElementById('badgeAiCount').textContent = aiList.length;
+
+            if (aiList.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-500 dark:text-slate-400 text-center py-4">Nenhuma questão inédita gerada ainda.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = aiList.map(q => `
+                <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-petro-950 border border-slate-200 dark:border-petro-800">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-xs font-bold text-amber-600 dark:text-amber-400">${q.id}</span>
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Bloco ${q.blocoId} • ${q.banca}</span>
+                        </div>
+                        <p class="text-xs text-slate-800 dark:text-slate-200 truncate mt-0.5">${q.enunciado}</p>
+                    </div>
+                    <button type="button" onclick="openQuestionById('${q.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shrink-0 transition">
+                        Resolver
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // =========================================================================
+        // 8. ABA 3: EDITAL VERTICALIZADO INTERATIVO (12 BLOCOS)
+        // =========================================================================
+        function renderEdital() {
+            const container = document.getElementById('editalAccordionContainer');
+            let totalSubs = 0;
+            let doneSubs = 0;
+
+            container.innerHTML = EDITAL_BLOCOS.map((bloco, bIndex) => {
+                let blockDone = 0;
+                const blockTotal = bloco.subtopicos.length;
+
+                const subsHtml = bloco.subtopicos.map((sub, sIndex) => {
+                    const key = `${bloco.id}-${sIndex}`;
+                    const checked = Boolean(state.editalDone[key]);
+                    totalSubs++;
+                    if (checked) {
+                        doneSubs++;
+                        blockDone++;
+                    }
+
+                    return `
+                        <label class="flex items-start gap-3 p-3 rounded-xl border transition ${checked ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-400/50 text-slate-500 dark:text-slate-400' : 'bg-slate-50 dark:bg-petro-950/70 border-slate-200 dark:border-petro-800 hover:border-emerald-500 text-slate-800 dark:text-slate-200'}">
+                            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleEditalItem('${key}')" class="mt-1 w-4 h-4 rounded accent-emerald-600 shrink-0">
+                            <span class="text-xs sm:text-sm leading-relaxed ${checked ? 'line-through' : ''}">${sub}</span>
+                        </label>
+                    `;
+                }).join('');
+
+                const blockPct = blockTotal > 0 ? Math.round((blockDone / blockTotal) * 100) : 0;
+                const qCount = state.questions.filter(q => q.blocoId === bloco.id).length;
+
+                return `
+                    <details class="bg-slate-50/60 dark:bg-petro-950/60 border border-slate-200 dark:border-petro-700/70 rounded-2xl overflow-hidden" ${bIndex === 0 ? 'open' : ''}>
+                        <summary class="flex flex-wrap items-center justify-between gap-3 p-4 list-none hover:bg-slate-100 dark:hover:bg-petro-800/50 transition">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <span class="w-8 h-8 rounded-lg bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-mono text-xs font-extrabold shrink-0">
+                                    ${bloco.id}
+                                </span>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">${bloco.titulo}</h3>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">${blockDone}/${blockTotal} concluídos (${blockPct}%) • ${qCount} questão(ões) no banco</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="hidden sm:block w-24 h-2 bg-slate-200 dark:bg-petro-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-emerald-500 transition-all" style="width: ${blockPct}%"></div>
+                                </div>
+                                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); practiceBlock('${bloco.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition">
+                                    Praticar Bloco (${qCount})
+                                </button>
+                            </div>
+                        </summary>
+                        <div class="p-4 pt-2 border-t border-slate-200 dark:border-petro-800 space-y-2">
+                            ${subsHtml}
+                        </div>
+                    </details>
+                `;
+            }).join('');
+
+            const overallPct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+            document.getElementById('editalTotalPctLabel').textContent = `${overallPct}%`;
+            document.getElementById('editalTotalBar').style.width = `${overallPct}%`;
+            document.getElementById('editalTotalCountLabel').textContent = `${doneSubs} de ${totalSubs} subtópicos concluídos`;
+        }
+
+        function toggleEditalItem(key) {
+            state.editalDone[key] = !state.editalDone[key];
+            saveEdital();
+            renderEdital();
+            updateGlobalStats();
+        }
+
+        function practiceBlock(blocoId) {
+            document.getElementById('filterBloco').value = blocoId;
+            document.getElementById('filterBanca').value = 'ALL';
+            document.getElementById('filterOrigem').value = 'ALL';
+            document.getElementById('filterStatus').value = 'ALL';
+            applyFilters();
+            switchTab('resolver');
+            showToast(`Filtrando questões do Bloco ${blocoId}.`, "info");
+        }
+
+        // =========================================================================
+        // 9. ABA 4: BANCO OPEN SOURCE, ESTATÍSTICAS & EXPORTAÇÃO JSON/CSV
+        // =========================================================================
+        function updateGlobalStats() {
+            const totalQ = state.questions.length;
+            const aiQ = state.questions.filter(q => q.origem === 'AI').length;
+
+            const attempts = Object.values(state.progress);
+            const answered = attempts.length;
+            const hits = attempts.filter(a => a.isCorrect).length;
+            const acc = answered > 0 ? Math.round((hits / answered) * 100) : 0;
+
+            let totalSubs = 0;
+            let doneSubs = 0;
+            EDITAL_BLOCOS.forEach(b => {
+                b.subtopicos.forEach((_, idx) => {
+                    totalSubs++;
+                    if (state.editalDone[`${b.id}-${idx}`]) doneSubs++;
+                });
+            });
+            const editalPct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+
+            document.getElementById('statTotalQ').textContent = totalQ;
+            document.getElementById('statAiQ').textContent = aiQ;
+            document.getElementById('statAccuracy').textContent = `${acc}%`;
+            document.getElementById('statEditalPct').textContent = `${editalPct}%`;
+        }
+
+        function renderBancoDashboard() {
+            const totalQ = state.questions.length;
+            const aiQ = state.questions.filter(q => q.origem === 'AI').length;
+            const prevQ = totalQ - aiQ;
+
+            const attempts = Object.values(state.progress);
+            const answered = attempts.length;
+            const hits = attempts.filter(a => a.isCorrect).length;
+            const misses = answered - hits;
+            const acc = answered > 0 ? Math.round((hits / answered) * 100) : 0;
+
+            let totalSubs = 0;
+            let doneSubs = 0;
+            EDITAL_BLOCOS.forEach(b => {
+                b.subtopicos.forEach((_, idx) => {
+                    totalSubs++;
+                    if (state.editalDone[`${b.id}-${idx}`]) doneSubs++;
+                });
+            });
+            const editalPct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
+
+            document.getElementById('kpiTotalQ').textContent = totalQ;
+            document.getElementById('kpiOriginBreakdown').textContent = `${prevQ} provas anteriores • ${aiQ} inéditas IA`;
+            document.getElementById('kpiAnswered').textContent = answered;
+            document.getElementById('kpiHitsMisses').textContent = `${hits} acertos • ${misses} erros`;
+            document.getElementById('kpiAccuracy').textContent = `${acc}%`;
+            document.getElementById('kpiEdital').textContent = `${editalPct}%`;
+            document.getElementById('kpiTopics').textContent = `${doneSubs} de ${totalSubs} tópicos`;
+
+            // Barras por Bloco
+            const blockStats = document.getElementById('blockStatsContainer');
+            blockStats.innerHTML = EDITAL_BLOCOS.map(b => {
+                const bQuestions = state.questions.filter(q => q.blocoId === b.id);
+                let bAns = 0;
+                let bHits = 0;
+                bQuestions.forEach(q => {
+                    if (state.progress[q.id]) {
+                        bAns++;
+                        if (state.progress[q.id].isCorrect) bHits++;
+                    }
+                });
+                const bPct = bAns > 0 ? Math.round((bHits / bAns) * 100) : 0;
+                const color = bPct >= 80 ? 'bg-emerald-500' : (bPct >= 50 ? 'bg-amber-500' : 'bg-sky-500');
+
+                return `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-bold text-slate-800 dark:text-slate-200 truncate pr-2">${b.titulo}</span>
+                            <span class="font-mono text-slate-500 dark:text-slate-400 shrink-0">${bHits}/${bAns} (${bPct}%) • ${bQuestions.length} no banco</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-200 dark:bg-petro-950 rounded-full overflow-hidden">
+                            <div class="h-full ${color} transition-all" style="width: ${bPct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderManageTable();
+        }
+
+        function renderManageTable() {
+            const tbody = document.getElementById('manageTableBody');
+            const query = (document.getElementById('manageSearchInput')?.value || '').toLowerCase().trim();
+
+            const list = state.questions.filter(q => {
+                if (!query) return true;
+                return q.id.toLowerCase().includes(query) ||
+                       q.banca.toLowerCase().includes(query) ||
+                       q.enunciado.toLowerCase().includes(query) ||
+                       q.subtopico.toLowerCase().includes(query);
+            });
+
+            tbody.innerHTML = list.map(q => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-petro-950/60">
+                    <td class="py-2.5 px-3 font-mono font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">${q.id}</td>
+                    <td class="py-2.5 px-3 font-mono font-semibold text-slate-700 dark:text-slate-300">Bloco ${q.blocoId}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${q.origem === 'AI' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-sky-500/15 text-sky-700 dark:text-sky-300'}">
+                            ${q.banca}
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-700 dark:text-slate-300 max-w-md truncate">${q.enunciado}</td>
+                    <td class="py-2.5 px-3 text-right whitespace-nowrap space-x-1.5">
+                        <button type="button" onclick="openQuestionById('${q.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+                            Abrir
+                        </button>
+                        ${q.origem === 'AI' ? `
+                            <button type="button" onclick="deleteAiQuestion('${q.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-600 dark:text-rose-300 font-bold">
+                                Excluir
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteAiQuestion(qId) {
+            state.questions = state.questions.filter(q => q.id !== qId);
+            delete state.progress[qId];
+            saveQuestions();
+            saveProgress();
+            applyFilters();
+            renderAiHistory();
+            updateGlobalStats();
+            renderBancoDashboard();
+            showToast(`Questão ${qId} removida do acervo.`, "info");
+        }
+
+        function saveApiKey() {
+            const val = document.getElementById('geminiApiKeyInput').value.trim();
+            localStorage.setItem(STORAGE_KEYS.API_KEY, val);
+            showToast("Chave da API Gemini salva localmente no navegador!", "success");
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem(STORAGE_KEYS.API_KEY);
+            document.getElementById('geminiApiKeyInput').value = '';
+            showToast("Chave removida. Usando integração padrão.", "info");
+        }
+
+        function exportJSON() {
+            const data = {
+                sistema: "EstudaData Transpetro - Ênfase 8: Ciência de Dados",
+                data_exportacao: new Date().toISOString(),
+                questoes: state.questions,
+                progresso: state.progress,
+                edital_concluido: state.editalDone
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `estudadata_transpetro_enfase8_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Backup completo exportado em JSON!", "success");
+        }
+
+        function exportCSV() {
+            const headers = ["id", "bloco", "banca", "origem", "nivel", "subtopico", "enunciado", "A", "B", "C", "D", "E", "gabarito", "conceito_chave"];
+            const esc = v => `"${String(v || '').replace(/"/g, '""').replace(/\r?\n/g, ' ')}"`;
+            const rows = state.questions.map(q => [
+                q.id, q.blocoId, q.banca, q.origem, q.nivel, q.subtopico, q.enunciado,
+                q.alternativas.A, q.alternativas.B, q.alternativas.C, q.alternativas.D, q.alternativas.E,
+                q.gabarito, q.conceitoChave
+            ].map(esc).join(","));
+
+            const csv = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `questoes_transpetro_enfase8_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Tabela de questões exportada em CSV!", "success");
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (Array.isArray(parsed.questoes)) {
+                        state.questions = parsed.questoes;
+                        if (parsed.progresso) state.progress = parsed.progresso;
+                        if (parsed.edital_concluido) state.editalDone = parsed.edital_concluido;
+
+                        saveQuestions();
+                        saveProgress();
+                        saveEdital();
+                        applyFilters();
+                        renderEdital();
+                        renderAiHistory();
+                        updateGlobalStats();
+                        renderBancoDashboard();
+                        showToast(`Importado com sucesso: ${state.questions.length} questões!`, "success");
+                    } else {
+                        showToast("Arquivo JSON inválido.", "error");
+                    }
+                } catch (err) {
+                    showToast("Erro ao processar o JSON.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetProgressOnly() {
+            state.progress = {};
+            saveProgress();
+            applyFilters();
+            updateGlobalStats();
+            renderBancoDashboard();
+            showToast("Histórico de respostas zerado.", "info");
+        }
+    </script>
+</body>
+</html>
